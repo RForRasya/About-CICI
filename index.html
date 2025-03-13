@@ -15,12 +15,31 @@
             <p class="subtitle">The one who stole my heart ❤️</p>
         </header>
 
+        <!-- Hidden audio element with preload attribute -->
+        <audio id="background-music" preload="auto" loop style="display: none;">
+            <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ssstik.io_1738878662905-bJgJvzVHEwSoDZK5op37HBtO5cwMvB.mp3" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+
+        <!-- Small play button that will appear if autoplay fails -->
+        <div id="play-sound-notice" style="text-align: center; margin-bottom: 15px; display: none;">
+            <button id="play-sound-btn" style="background: #e91e63; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer;">
+                Tap to play music
+            </button>
+        </div>
+
         <div class="content">
             <div class="photo-section">
+                <!-- 3D scene behind photo -->
+                <div id="photo-background-scene" class="photo-background-scene"></div>
+                
                 <div class="photo-container" data-tilt data-tilt-max="25" data-tilt-glare data-tilt-max-glare="0.5">
                     <!-- Replace with actual photo of Citra -->
                     <img src="CICI.jpg" alt="Citra Purbayasari" id="photo">
                 </div>
+                
+                <!-- 3D scene below photo -->
+                <div id="photo-bottom-scene" class="photo-bottom-scene"></div>
             </div>
 
             <div class="description">
@@ -48,5 +67,69 @@
     </div>
 
     <script src="script.js"></script>
+    
+    <!-- Add this script to ensure audio plays -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const audio = document.getElementById('background-music');
+            const playNotice = document.getElementById('play-sound-notice');
+            const playBtn = document.getElementById('play-sound-btn');
+            
+            // Try to play audio immediately
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Autoplay started successfully
+                    console.log('Audio playing automatically');
+                    
+                    // Stop after 60 seconds
+                    setTimeout(() => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                    }, 60000);
+                })
+                .catch(error => {
+                    // Autoplay was prevented
+                    console.log('Autoplay prevented:', error);
+                    
+                    // Show the play button
+                    playNotice.style.display = 'block';
+                    
+                    // Add click event to play button
+                    playBtn.addEventListener('click', function() {
+                        audio.play()
+                            .then(() => {
+                                playNotice.style.display = 'none';
+                                
+                                // Stop after 60 seconds
+                                setTimeout(() => {
+                                    audio.pause();
+                                    audio.currentTime = 0;
+                                }, 60000);
+                            })
+                            .catch(err => console.log('Still cannot play audio:', err));
+                    });
+                    
+                    // Also try to play on first user interaction with the page
+                    document.body.addEventListener('click', function bodyClick() {
+                        audio.play()
+                            .then(() => {
+                                playNotice.style.display = 'none';
+                                document.body.removeEventListener('click', bodyClick);
+                                
+                                // Stop after 60 seconds
+                                setTimeout(() => {
+                                    audio.pause();
+                                    audio.currentTime = 0;
+                                }, 60000);
+                            })
+                            .catch(err => console.log('Still cannot play audio on body click:', err));
+                    }, { once: true });
+                });
+            }
+        });
+    </script>
 </body>
 </html>
+
